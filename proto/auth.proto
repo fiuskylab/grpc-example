@@ -35,5 +35,6 @@ message CheckTokenRequest {
 }
 
 message CheckTokenResponse {
-  string error_message = 1;
+  string id = 1;
+  string error_message = 2;
 }
