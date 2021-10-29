@@ -28,7 +28,7 @@ type Env struct {
 	REDIS_PASSWORD string
 	REDIS_PORT     string
 	REDIS_NAME     string
-	REDIS_DB       string
+	REDIS_DB       int
 
 	AUTH_URL      string
 	AUTH_PORT     string
@@ -45,6 +45,13 @@ func NewCommon() *Common {
 
 	apiPortStr := os.Getenv("API_PORT")
 	apiPort, err := strconv.Atoi(apiPortStr)
+
+	if err != nil {
+		l.Error(err.Error())
+		return &Common{}
+	}
+	redisDB, err := strconv.Atoi(os.Getenv("REDIS_DB"))
+
 	if err != nil {
 		l.Error(err.Error())
 		return &Common{}
@@ -65,7 +72,7 @@ func NewCommon() *Common {
 			REDIS_PORT:     os.Getenv("REDIS_PORT"),
 			REDIS_NAME:     os.Getenv("REDIS_NAME"),
 			REDIS_PASSWORD: os.Getenv("REDIS_PASSWORD"),
-			REDIS_DB:       os.Getenv("REDIS_DB"),
+			REDIS_DB:       redisDB,
 
 			AUTH_URL:      os.Getenv("AUTH_URL"),
 			AUTH_PORT:     os.Getenv("AUTH_PORT"),
