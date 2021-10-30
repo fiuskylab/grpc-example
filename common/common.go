@@ -33,6 +33,8 @@ type Env struct {
 	AUTH_URL      string
 	AUTH_PORT     string
 	AUTH_ENDPOINT string
+
+	JWT_SIGN []byte
 }
 
 func NewCommon() *Common {
@@ -77,6 +79,8 @@ func NewCommon() *Common {
 			AUTH_URL:      os.Getenv("AUTH_URL"),
 			AUTH_PORT:     os.Getenv("AUTH_PORT"),
 			AUTH_ENDPOINT: os.Getenv("AUTH_ENDPOINT"),
+
+			JWT_SIGN: []byte(os.Getenv("JWT_SIGN")),
 		},
 	}
 }
