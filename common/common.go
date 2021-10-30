@@ -66,8 +66,8 @@ func NewCommon() *Common {
 			PGSQL_HOST:     os.Getenv("PGSQL_HOST"),
 			PGSQL_PORT:     os.Getenv("PGSQL_PORT"),
 			PGSQL_USER:     os.Getenv("PGSQL_USER"),
-			PGSQL_PASSWORD: os.Getenv("PGSQL_DBNAME"),
-			PGSQL_DBNAME:   os.Getenv("PGSQL_PASSWORD"),
+			PGSQL_PASSWORD: os.Getenv("PGSQL_PASSWORD"),
+			PGSQL_DBNAME:   os.Getenv("PGSQL_DBNAME"),
 			PGSQL_NAME:     os.Getenv("PGSQL_NAME"),
 
 			REDIS_HOST:     os.Getenv("REDIS_HOST"),
