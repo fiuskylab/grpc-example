@@ -1,7 +1,9 @@
 package repository
 
 import (
+	"context"
 	"fmt"
+	"time"
 
 	"github.com/fiuskylab/grpc-example/common"
 	"github.com/fiuskylab/grpc-example/proto"
@@ -53,6 +55,7 @@ func (a *AuthRepoCtx) Create(req *proto.CreateUserRequest) *proto.CreateUserResp
 	encPW, err := a.EncPassword(req.Password)
 
 	if err != nil {
+		a.Common.Log.Error(err.Error())
 		return &proto.CreateUserResponse{
 			ErrorMessage: err.Error(),
 		}
@@ -64,6 +67,7 @@ func (a *AuthRepoCtx) Create(req *proto.CreateUserRequest) *proto.CreateUserResp
 	}
 
 	if err = a.Storage.PGSQL.Create(&u).Error; err != nil {
+		a.Common.Log.Error(err.Error())
 		return &proto.CreateUserResponse{
 			ErrorMessage: err.Error(),
 		}
@@ -71,10 +75,19 @@ func (a *AuthRepoCtx) Create(req *proto.CreateUserRequest) *proto.CreateUserResp
 	token, err := a.JWT.NewToken(u.ID.String())
 
 	if err != nil {
+		a.Common.Log.Error(err.Error())
 		return &proto.CreateUserResponse{
 			ErrorMessage: err.Error(),
 		}
 	}
+
+	if res := a.Storage.Redis.Set(context.Background(), token, u.ID.String(), time.Hour*8); res.Err() != nil {
+		a.Common.Log.Error(res.Err().Error())
+		return &proto.CreateUserResponse{
+			ErrorMessage: res.Err().Error(),
+		}
+	}
+
 	return &proto.CreateUserResponse{
 		Token: token,
 	}
@@ -116,6 +129,14 @@ func (a *AuthRepoCtx) Login(req *proto.LoginRequest) *proto.LoginResponse {
 			ErrorMessage: err.Error(),
 		}
 	}
+
+	if res := a.Storage.Redis.Set(context.Background(), token, u.ID.String(), time.Hour*8); res.Err() != nil {
+		a.Common.Log.Error(res.Err().Error())
+		return &proto.LoginResponse{
+			ErrorMessage: res.Err().Error(),
+		}
+	}
+
 	return &proto.LoginResponse{
 		Token: token,
 	}
@@ -127,7 +148,16 @@ func (a *AuthRepoCtx) Check(req *proto.CheckTokenRequest) *proto.CheckTokenRespo
 		errMsg = err.Error()
 	}
 
+	res := a.Storage.Redis.Get(context.Background(), req.Token)
+
+	if err := res.Err(); err != nil {
+		return &proto.CheckTokenResponse{
+			ErrorMessage: errMsg,
+		}
+	}
+
 	return &proto.CheckTokenResponse{
+		Id:           res.Val(),
 		ErrorMessage: errMsg,
 	}
 }
